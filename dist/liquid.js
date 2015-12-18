@@ -17,19 +17,6 @@ var Liquid = {
 
 };
 
-if (!String.prototype.capitalize) {
-  String.prototype.capitalize = function() {
-    return this.charAt(0).toUpperCase() + this.substring(1).toLowerCase();
-  };
-}
-
-if (!String.prototype.strip) {
-  String.prototype.strip = function() {
-    return this.replace(/^\s+/, '').replace(/\s+$/, '');
-  };
-}
-
-
 Liquid.extensions = {};
 Liquid.extensions.object = {};
 
@@ -52,6 +39,16 @@ Liquid.extensions.object.hasValue = function(arg) {
 
   return false;
 };
+
+Liquid.extensions.stringTools = {};
+Liquid.extensions.stringTools.capitalize = function(str) {
+  return str.charAt(0).toUpperCase() + str.substring(1).toLowerCase();
+};
+
+Liquid.extensions.stringTools.strip = function(str) {
+  return str.replace(/^\s+/, '').replace(/\s+$/, '');
+};
+
 
 Liquid.extensions.arrayTools = {};
 
@@ -884,7 +881,7 @@ Liquid.Template.registerTag( 'case', Liquid.Block.extend({
     }
   },
   recordElseCondition: function(markup) {
-    if( (markup || '').strip() != '') {
+    if( Liquid.extensions.stringTools.strip((markup || '')) != '') {
       throw ("Syntax error in tag 'case' - Valid else condition: {% else %} (no parameters) ")
     }
     var block = new Liquid.ElseCondition();
@@ -970,7 +967,7 @@ Liquid.Template.registerTag( 'for', Liquid.Block.extend({
       if(attMatchs) {
         Liquid.extensions.arrayTools.each(attMatchs, function(pair){
           pair = pair.split(":");
-          this.attributes[pair[0].strip()] = pair[1].strip();
+          this.attributes[Liquid.extensions.stringTools.strip(pair[0])] = Liquid.extensions.stringTools.strip(pair[1]);
         }, this);
       }
     } else {
@@ -1128,7 +1125,7 @@ Liquid.Template.registerTag( 'include', Liquid.Tag.extend({
       if(attMatchs) {
         Liquid.extensions.arrayTools.each(attMatchs, function(pair){
           pair = pair.split(":");
-          this.attributes[pair[0].strip()] = pair[1].strip();
+          this.attributes[Liquid.extensions.stringTools.strip(pair[0])] = Liquid.extensions.stringTools.strip(pair[1]);
         }, this);
       }
     } else {
@@ -1240,7 +1237,7 @@ Liquid.Template.registerFilter({
   },
 
   capitalize: function(input) {
-    return input.toString().capitalize();
+    return Liquid.extensions.stringTools.capitalize(input.toString());
   },
 
   escape: function(input) {
